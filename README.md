@@ -1,5 +1,5 @@
 # rsagen
-Generates an id_rsa and id_rsa.pub!
+Generates an `id_rsa` and `id_rsa.pub`!
 
 ## Build for Web
 `make`
