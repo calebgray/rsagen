@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/asn1"
 	"encoding/pem"
+	"golang.org/x/crypto/ssh"
 	"os"
 	"strconv"
 	"strings"
@@ -23,22 +23,17 @@ func main() {
 	}
 
 	// generate keys
-	keys, _ := rsa.GenerateKey(rand.Reader, configBits)
+	rsaKey, _ := rsa.GenerateKey(rand.Reader, configBits)
 
 	// id_rsa
 	var privBuffer strings.Builder
 	_ = pem.Encode(&privBuffer, &pem.Block{
 		Type:  "PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(keys),
+		Bytes: x509.MarshalPKCS1PrivateKey(rsaKey),
 	})
 	print(privBuffer.String())
 
 	// id_rsa.pub
-	var pubBuffer strings.Builder
-	asn1Bytes, _ := asn1.Marshal(keys.PublicKey)
-	_ = pem.Encode(&pubBuffer, &pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: asn1Bytes,
-	})
-	print(pubBuffer.String())
+	pubRsaKey, _ := ssh.NewPublicKey(&rsaKey.PublicKey)
+	print(string(ssh.MarshalAuthorizedKey(pubRsaKey)))
 }
